@@ -37,7 +37,7 @@ class User extends Database
         }
     }
 
-    public function store($username, $password, $firstname, $lastname, $itemname, $itemdetails, $itemquantity, $itemprice)
+    public function store($username, $password, $firstname, $lastname, $itemname, $itemdetails, $itemquantity, $itemprice, $directory, $fileToUpload)
     {
         $sql = "SELECT * FROM users WHERE username = '$username'";
         $result = $this->conn->query($sql);
@@ -45,20 +45,24 @@ class User extends Database
             return false;
         } else {
             $password = md5($password);
-            $sql = "INSERT INTO users(username, password, firstname, lastname) VALUES('$username', '$password', '$firstname','$lastname')";
+            $sql = "INSERT INTO movies(movie_id, movie_name) VALUES('$username', '$password', '$firstname','$lastname', '$directory')";
             $result = $this->conn->query($sql);
 
             if ($result) {
-                //get the last inserted id from users table
-                $user_id = mysqli_insert_id($this->conn);
-                $sql = "INSERT INTO items(user_id, item_name, item_details, item_quantity, item_price) 
+                move_uploaded_file($fileToUpload, $directory);
+                $movie_id = mysqli_insert_id($this->conn);
+                foreach($subject as $index => $val){
+                    $sql = "INSERT INTO items(user_id, item_name, item_details, item_quantity, item_price) 
                         VALUES('$user_id', '$itemname', '$itemdetails', '$itemquantity', '$itemprice')";
-                $result = $this->conn->query($sql);
+                    $result = $this->conn->query($sql);
+                }
+                
                 if($result) {
-                    header("location: index.php");
+                    $reservation_id = mysqli_insert_id($result);
+                    header("location: reserve.php?id=$reservation_id");
                 }
             } else {
-                return $conn->error;
+                echo $this->conn->error;
             }
         }
         $this->conn->close();
@@ -97,7 +101,8 @@ class User extends Database
     public function login($username, $password)
     {
         //query
-        $sql = "SELECT * FROM users WHERE username = '$username's";
+        $password = md5($password);
+        $sql = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
         //execute or run the query
         $result = $this->conn->query($sql);
 
@@ -107,6 +112,44 @@ class User extends Database
             header("location: index.php");
         } else {
             return false;
+        }
+    }
+
+    public function insertMovie($subject){
+        $sql = "INSERT INTO movies";
+        $result= $this->conn->query($sql);
+        if($result){
+            $movie_id = mysqli_insert_id($this->conn);
+            foreach($cinema as $index => $cinema_id){
+                $sql = "INSERT INTO moviecinema(movie_id, cinema_id) VALUES($movie_id, $cinema_id)";
+            }
+        }
+        
+    }
+
+    public function confirm($id){
+        $sql = "UPDATE reservation SET status='confirm' WHERE reserve_id=$id";
+        
+    }
+
+    public function selectConfirmation(){
+        $sql = "SELECT * FROM reservation WHERE status='pending'";
+    }
+
+    public function reserve($movie_id, $cinema_id, $quantity, $date, $user_id){
+        $sql = "SELECT * FROM moviecinema WHERE cinema_id=$cinema_id AND movie_id=$movie_id";
+        $result = $this->conn->query($sql);
+        $row = $result->fetch_assoc();
+        $mc_id = $row['moci_id'];
+        $mc_quantity = $row['quantity'];
+        $new_quantity = $mc_quantity - $quantity;
+        $price = $row['price'];
+        $total = $price * $quantity;
+
+        $sql = "UPDATE moviecinema SET quantity=$new_quantity WHERE moci_id=$mc_id";
+        $result = $this->conn->query($sql);
+        if($result){
+            $sql = "INSERT INTO reservation(moci_id, quantity, totalprice, status, date)VALUES($mc_id, $quantity, $total, 'pending', $date)";
         }
     }
 }

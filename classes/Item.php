@@ -5,7 +5,8 @@ class Item extends Database{
 
     public function select(){
         //query
-        $sql = "SELECT * FROM items";
+        $sql = "SELECT * FROM items INNER JOIN users ON items.user_id=users.user_id
+                INNER JOIN hotels ON items.hotel_id=hotel.hotel_id";
         //execute or run the query
         $result = $this->conn->query($sql);
         //initialize an array

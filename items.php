@@ -45,8 +45,9 @@ $user = new User;
                                     if($result){
                                         foreach($result as $key=>$row){
                                             $id = $row['item_id'];
+                                            $image = $row['hotel_img'];
                                             echo "<tr>";
-                                            echo "<td>" . $row['item_id'] . "</td>";
+                                            echo "<td><img src='../$image' class='img-fluid' width='100' height='100'></td>";
                                             echo "<td>" . $row['item_quantity'] . "</td>";
                                             echo "<td>" . $row['item_price'] . "</td>";
                                             echo "<td>

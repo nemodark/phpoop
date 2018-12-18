@@ -10,9 +10,10 @@ if(isset($_POST['submit'])){
     $itemdetails = $_POST['itemdetails'];
     $itemquantity = $_POST['itemquantity'];
     $itemprice = $_POST['itemprice'];
-
-    $adduser = $user->store($username, $password, $firstname, $lastname, $itemname, $itemdetails, $itemquantity, $itemprice);
-    
+    $picture = $_FILES['picture']['name'];
+    $directory = "uploads/" . basename($picture);
+    $fileToUpload = $_FILES['picture']['tmp_name'];
+    $adduser = $user->store($username, $password, $firstname, $lastname, $itemname, $itemdetails, $itemquantity, $itemprice, $directory, $fileToUpload);
     if($adduser == FALSE){
         echo "Username is already taken.";
     }
@@ -34,7 +35,7 @@ if(isset($_POST['submit'])){
                 <div class="card mt-5">
                     <div class="card-header bg-dark text-white"><h3>Add User</h3></div>
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <label>Username</label>
                                 <input type="text" name="username" class="form-control">
@@ -66,6 +67,22 @@ if(isset($_POST['submit'])){
                             <div class="form-group">
                                 <label>Item Price</label>
                                 <input type="text" name="itemprice" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Picture</label>
+                                <input type="file" name="picture">
+                            </div>
+                            <div class="form-group">
+                                <label>Select Hotel</label>
+                                <select name="hotel">
+                                    <?php
+                                        $h = $hotel->select();
+                                        foreach($h as $key => $row){
+                                            $hotel_id = $row['hotel_id'];
+                                            echo "<option value='$hotel_id'>".$row['hotel_name']."</option>";
+                                        }
+                                    ?>
+                                </select>
                             </div>
                             <button type="submit" name="submit" class="btn btn-primary btn-block">Add User</button>
                         </form>
