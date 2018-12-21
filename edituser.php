@@ -8,8 +8,12 @@ if(isset($_POST['submit'])){
     $username = $_POST['username'];
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
-
-    $updateuser = $user->update($id, $username, $firstname, $lastname);
+    $profilepic = $_POST['profilepic'];
+    $target_dir = "../uploads/";
+    $target_file = $target_dir . basename($_FILES['profilepic']['name']);
+    $tmp_name = $_FILES['profilepic']['tmp_name'];
+    
+    $updateuser = $user->update($id, $username, $firstname, $lastname, $target_file, $tmp_name);
 
     if($updateuser == FALSE){
         echo "Username is already taken.";
@@ -35,7 +39,7 @@ if(isset($_POST['submit'])){
                 <div class="card mt-5">
                     <div class="card-header bg-dark text-white"><h3>Edit User</h3></div>
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <label>Username</label>
                                 <input type="text" name="username" class="form-control" value="<?php echo $row['username']; ?>">
@@ -48,6 +52,9 @@ if(isset($_POST['submit'])){
                                 <label>Lastname</label>
                                 <input type="text" name="lastname" class="form-control" value="<?php echo $row['lastname']; ?>">
                             </div>
+                            <div class="form-group">
+                                <input type="file" name="profilepic">
+                            </div>
                             <button type="submit" name="submit" class="btn btn-primary btn-block">Update User</button>
                         </form>
                     </div>
@@ -57,3 +64,15 @@ if(isset($_POST['submit'])){
     </div>
 </body>
 </html>
+
+
+<div class="form-group">
+    <select name="quantity" class="form-control">
+        <?php 
+            $quantity = $row['mc_quantity'];
+            for($i=1;$i<=$quantity; $i++){
+                echo "<option value='$i'>$i</option>";
+            }
+        ?>
+    </select>
+</div>

@@ -1,6 +1,7 @@
 <?php 
 require_once("classes/User.php");
 session_start();
+$id = $_GET['id'];
 
 $id = $_SESSION['userid'];
 //Create an instance for User
@@ -46,14 +47,18 @@ $user = new User;
                                         foreach($result as $key=>$row){
                                             $id = $row['item_id'];
                                             $image = $row['hotel_img'];
+                                            $startdate = strtotime($row['start']);
+                                            $start = date("M-d-Y", $startdate);
                                             echo "<tr>";
                                             echo "<td><img src='../$image' class='img-fluid' width='100' height='100'></td>";
                                             echo "<td>" . $row['item_quantity'] . "</td>";
                                             echo "<td>" . $row['item_price'] . "</td>";
-                                            echo "<td>
-                                            <a href='edititem.php?id=$id' class='btn btn-info btn-sm'>Edit</a>
-                                            <a href='deleteuser.php?id=$id' class='btn btn-danger btn-sm'>Delete</a>
-                                            </td>";
+                                            if($row['roomstatus'] == 'pending'){
+                                                echo "<td><a class='checkin.php?id=$id'>Check-in</a></td>";
+                                            }
+                                            elseif($row['roomstatus'] == 'occupied'){
+                                                echo "<td><a class='checkout.php?id=$id'>Check-out</a></td>";
+                                            }
                                             echo "</tr>";
                                         }
                                     }

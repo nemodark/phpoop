@@ -37,7 +37,7 @@ class Item extends Database{
         }
     }
 
-    public function store($itemname, $password, $firstname, $lastname){
+    public function store($itemname, $password, $firstname, $lastname, $target_file, $tmp_name){
         $sql = "SELECT * FROM items WHERE item_name = '$itemname'";
         $result = $this->conn->query($sql);
         if($result->num_rows > 0){
@@ -45,9 +45,10 @@ class Item extends Database{
         }
         else{
             $password = md5($password);
-            $sql = "INSERT INTO users(username, password, firstname, lastname) VALUES('$username', '$password', '$firstname','$lastname')";
+            $sql = "INSERT INTO users(username, password, firstname, lastname, profile_pic) VALUES('$username', '$password', '$firstname','$lastname', '$target_file')";
             $result = $this->conn->query($sql);
             if($result){
+                move_uploaded_file($tmp_name, $target_file);
                 header("location: users.php");
             }
             else{
@@ -87,5 +88,22 @@ class Item extends Database{
         }
         $this->conn->close();
     }
+
+    public function checkinRoom(){
+        $sql = "SELECT * FROM rooms WHERE roomstatus='pending' OR roomstatus='occupied'";
+        $result = $this->conn->query($sql);
+        $rows = array();
+        if($result->num_rows > 0){
+            while($row = $result->fetch_assoc()){
+                $rows[] = $row;
+            }
+            return $rows;
+        }
+        else{
+            return false;
+        }
+    }
 }
+
+
 

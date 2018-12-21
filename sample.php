@@ -12,9 +12,16 @@
 <input type="checkbox" name="subject[]" value="JV">Java <br />
 <input type="checkbox" name="subject[]" value="VB">VB.net <br />
 <input type="submit" name="submit" value="submit">
+
+
 </form>
 
 <?php
+$_GET['date1'];
+$_GET['date2'];
+
+$roomid = $row['room_id'];
+echo "<a href='confirmreceipt.php?id=$roomid&date1=$date1&date2=$date2'></a>";
 
 if(isset($_POST['submit'])){
     require("classes/User.php");
@@ -26,6 +33,8 @@ if(isset($_POST['submit'])){
 
 }
 ?>
+
+
 
 </body>
 </html>

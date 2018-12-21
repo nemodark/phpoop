@@ -7,7 +7,7 @@ class User extends Database
     public function select()
     {
         //query
-        $sql = "SELECT * FROM users";
+        $sql = "SELECT * FROM movies ORDER BY movie_id DESC LIMIT 5";
         //execute or run the query
         $result = $this->conn->query($sql);
         //initialize an array
@@ -52,6 +52,8 @@ class User extends Database
                 move_uploaded_file($fileToUpload, $directory);
                 $movie_id = mysqli_insert_id($this->conn);
                 foreach($subject as $index => $val){
+                    $schedule = strtotime($schedule);
+                    $date = date("Y/m/d", $schedule);
                     $sql = "INSERT INTO items(user_id, item_name, item_details, item_quantity, item_price) 
                         VALUES('$user_id', '$itemname', '$itemdetails', '$itemquantity', '$itemprice')";
                     $result = $this->conn->query($sql);
@@ -144,6 +146,7 @@ class User extends Database
         $mc_quantity = $row['quantity'];
         $new_quantity = $mc_quantity - $quantity;
         $price = $row['price'];
+        ($row['status'] == 'admin');
         $total = $price * $quantity;
 
         $sql = "UPDATE moviecinema SET quantity=$new_quantity WHERE moci_id=$mc_id";
@@ -152,4 +155,44 @@ class User extends Database
             $sql = "INSERT INTO reservation(moci_id, quantity, totalprice, status, date)VALUES($mc_id, $quantity, $total, 'pending', $date)";
         }
     }
+
+    public function confirmReceipt($id){
+        $sql = "";
+        $result = $this->conn->query($sql);
+        if($result){
+            $row = $result->fetch_assoc();
+            return $row;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public function selectReservation($id){
+        $sql = "SELECT * FROM reservation WHERE reserve_id = $id";
+        $result = $this->conn->query($sql);
+        $row = $result->fetch_assoc();
+        return $row;
+    }
+
+    public function confirmBooking($id){
+        $sql = "UPDATE reservation SET status='confirmed' WHERE reserve_id = $id";
+        $result = $this->conn->query($sql);
+        if($result){
+            $getroom = $this->selectReservation($id);
+            $roomid = $getroom['room_id'];
+            $sql = "UPDATE rooms SET status='pending' WHERE room_id = $id";
+            $result = $this->conn->query($sql);
+        }
+    }
 }
+
+
+$id = $_GET['id'];
+
+$result = $reserve->confirmReceipt($id);
+
+$date1=date_create("2013-03-15");
+$date2=date_create("2013-12-12");
+$diff=date_diff($date1,$date2);
+echo $diff->format("%a");
